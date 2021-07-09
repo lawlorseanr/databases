@@ -4,19 +4,18 @@ module.exports = {
   get: function (req, res) {
     Users.getAll( (err, users) => {
       if (err) {
-        res.sendStatus(400);
+        res.status(400).send(err);
       } else {
         res.status(200).json(users);
       }
     });
   },
   post: function (req, res) {
-    console.log(`body: ${JSON.stringify(req.body)}`);
-    Users.create(req.body, (err) => {
+    Users.create(req.body, (err, success) => {
       if (err) {
-        res.sendStatus(400);
+        res.status(400).send(err);
       } else {
-        res.status(201).send('success');
+        res.status(201).send(success);
       }
     });
   }

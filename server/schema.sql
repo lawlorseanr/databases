@@ -20,8 +20,8 @@ CREATE TABLE messages (
   campus VARCHAR(255) NOT NULL,
   roomname VARCHAR(255) NOT NULL,
   content VARCHAR(255) NOT NULL,
-  created_at DATE NOT NULL,
-  updated_at DATE NOT NULL,
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (user_id) REFERENCES users (id)
 );

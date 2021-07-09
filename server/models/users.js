@@ -13,23 +13,23 @@ module.exports = {
       });
   },
   create: function (user, callback) {
-    db.query(`SELECT * FROM users WHERE username IN (\'${user}\')`)
+    db.query(`SELECT * FROM users WHERE username IN (\'${user.username}\')`)
       .then( results => {
         if (results.length > 0) {
-          callback('User already defined');
+          throw `User \'${user.username}\' already defined.`;
         }
-        return;
       })
       .then( () => {
         db.query(`INSERT INTO users (username, github) VALUES (\'${user.username}\', \'${user.github}\')`)
+          .then( () => {
+            callback(null, `User \'${user.username}\' successfully created.`);
+          })
           .catch( err => {
-            callback(err);
+            throw err;
           });
       })
       .catch( err => {
-        console.error(err);
         callback(err);
       });
   }
 };
-//       data: {todoText: text},

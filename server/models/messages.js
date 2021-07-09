@@ -27,7 +27,7 @@ module.exports = {
       VALUES
         ((SELECT id FROM users WHERE username = \'${message.username}\'), \'${message.campus}\', \'${message.roomname}\', \'${message.text}\', NOW(), NOW());`)
       .then( results => {
-        return callback(null, results);
+        callback(null, 'Message successfully submitted.');
       })
       .catch( err => {
         callback(err);
