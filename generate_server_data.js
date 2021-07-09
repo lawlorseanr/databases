@@ -1,7 +1,23 @@
 var _ = require('underscore');
 var db = require('./server/db/index.js');
+db.connect();
 
-var count = 5;
+
+var querySender = query => {
+  var start = new Date();
+  db.query(query)
+    .then( results => {
+      console.log(`Query successful after ${new Date() - start}ms.`);
+    })
+    .catch( err => {
+      console.error(err);
+    })
+    .then( () => db.end() );
+};
+
+/*
+  =================== Users ===================
+ */
 
 var usernames = [
   ['xshi32', 'xuandan08'],
@@ -13,6 +29,22 @@ var usernames = [
   ['clawlor', 'saintsforlyfe'],
   ['goouhnyak', 'cvnntg']
 ];
+
+var query = 'INSERT INTO users (username, github) VALUES';
+
+for (var i = 0; i < usernames.length; i++) {
+  var queryText = `(\'${usernames[i][0]}\', \'${usernames[i][1]}\')`;
+  query += ' ' + queryText + ', ';
+}
+query = query.substr(0, query.length - 2);
+// querySender(query);
+
+
+
+/*
+  =================== Messages ===================
+ */
+var count = 35000;
 
 var pronouns = ['The President', 'you', 'i', 'we', 'they', 'it', 'the company', 'Rick & Morty'];
 var verbs = ['went to ', 'walked by', 'flew from', 'waddled below', 'skipped along to', 'did not go to', 'did nothing at', 'invented'];
@@ -44,16 +76,4 @@ for (var i = 0; i < count; i++) {
 
 }
 query = query.substr(0, query.length - 2);
-/*
-create new message
-  */
-var start = new Date();
-db.connect();
-db.query(query)
-  .then( results => {
-    console.log(`\n\nQuery successful. ${count} results added in ${new Date() - start}ms.`);
-  })
-  .catch( err => {
-    console.error(err);
-  })
-  .then( () => db.end() );
+querySender(query);

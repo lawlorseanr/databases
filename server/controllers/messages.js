@@ -11,13 +11,13 @@ module.exports = {
       }
     });
   },
-  post: function (message, req, res) {
+  post: function (req, res) {
     // a function which handles posting a message to the database
-    Messages.create(message, (err) => {
+    Messages.create(req.body, (err) => {
       if (err) {
         res.sendStatus(400);
       } else {
-        res.status(201).json('success');
+        res.status(201).send('success');
       }
     });
   }

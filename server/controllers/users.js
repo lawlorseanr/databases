@@ -10,12 +10,13 @@ module.exports = {
       }
     });
   },
-  post: function (username, req, res) {
-    Users.create(username, (err) => {
+  post: function (req, res) {
+    console.log(`body: ${JSON.stringify(req.body)}`);
+    Users.create(req.body, (err) => {
       if (err) {
         res.sendStatus(400);
       } else {
-        res.status(201).json('success');
+        res.status(201).send('success');
       }
     });
   }
