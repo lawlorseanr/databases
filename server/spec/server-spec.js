@@ -29,14 +29,16 @@ describe('Persistent Node Chat Server', function() {
 
   it('Should insert posted messages to the DB', function(done) {
     // Post the user to the chat server.
-    axios.post('http://127.0.0.1:3000/classes/users', {
+    console.log('pre-post');
+    axios.post('http://127.0.0.1:3001/classes/users', {
       username: 'Valjean'
     })
     // Post a message to the node chat server:
       .then(
-        function () {
 
-          axios.post('http://127.0.0.1:3000/classes/messages', {
+        function () {
+          console.log('post-post');
+          axios.post('http://127.0.0.1:3001/classes/messages', {
             username: 'Valjean',
             message: 'In mercy\'s name, three days is all I need.',
             roomname: 'Hello'
@@ -83,7 +85,7 @@ describe('Persistent Node Chat Server', function() {
 
       // Now query the Node chat server and see if it returns
       // the message we just inserted:
-      axios.get('http://127.0.0.1:3000/classes/messages')
+      axios.get('http://127.0.0.1:3001/classes/messages')
         .then(function (response) {
           var messageLog = response.data;
           expect(messageLog[0].text).to.equal('Men like you can never change!');

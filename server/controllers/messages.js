@@ -11,9 +11,9 @@ module.exports = {
       }
     });
   },
-  post: function (req, res) {
+  post: function (message, req, res) {
     // a function which handles posting a message to the database
-    Messages.create(content, (err) => {
+    Messages.create(message, (err) => {
       if (err) {
         res.sendStatus(400);
       } else {
