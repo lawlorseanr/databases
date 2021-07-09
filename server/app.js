@@ -1,5 +1,6 @@
 var express = require('express');
-var db = require('./db');
+var db = require('./db/index.js').connection;
+db.connect();
 
 // Middleware
 var morgan = require('morgan');
