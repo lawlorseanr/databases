@@ -11,7 +11,7 @@ CREATE TABLE users (
   id INT AUTO_INCREMENT,
   username VARCHAR(255) NOT NULL,
   github VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE messages (
