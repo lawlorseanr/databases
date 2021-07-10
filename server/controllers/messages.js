@@ -5,7 +5,8 @@ module.exports = {
     // a function which handles a get request for all messages
     Messages.getAll( (err, messages) => {
       if (err) {
-        res.status(400).send(err);
+        res.status(400);
+        res.end();
       } else {
         res.status(200).json(messages);
       }
@@ -15,9 +16,11 @@ module.exports = {
     // a function which handles posting a message to the database
     Messages.create(req.body, (err, success) => {
       if (err) {
-        res.status(400).send(err);
+        res.status(400);
+        res.end();
       } else {
-        res.status(201).send(success);
+        res.status(201);
+        res.end();
       }
     });
   }
