@@ -1,47 +1,105 @@
 var _ = require('underscore');
 var data = require('./example_data.js');
+var Sequelize = require('sequelize');
 
-var randnum = (length) => Math.floor(Math.random() * length);
+var newMessageCount = 35000;
 
-var generateUsername = true;
-if (generateUsername) {
-  /*
-  =================== Users ===================
-  */
-  var query = 'INSERT INTO users (username, github) VALUES';
-  for (var i = 0; i < data.usernames.length; i++) {
-    var queryText = `(\'${data.usernames[i][0]}\', \'${data.usernames[i][1]}\')`;
-    query += ' ' + queryText + ', ';
-  }
-  query = query.substr(0, query.length - 2);
-  querySender(query);
+var db = new Sequelize('chat', 'root', '', {
+  host: 'localhost',
+  dialect: 'mysql',
+  logging: false
+});
 
-} else {
-  /*
-  =================== Messages ===================
-  */
-  var count = 35000;
-  var query = 'INSERT INTO messages (user_id, campus, roomname, content, created_at, updated_at) VALUES';
-  for (var i = 0; i < count; i++) {
 
-    var idx = randnum(data.usernames.length);
-    var username = data.usernames[idx][0];
-    var github = data.usernames[idx][1];
-    var campus = 'hr-lax';
-    var roomname = 'lobby';
+var Message = db.define('Message', {
+  campus: Sequelize.STRING,
+  roomname: Sequelize.STRING,
+  text: Sequelize.STRING,
+}, {
+  tableName: 'messages'
+});
 
-    var message = [
-      data.pronouns[randnum(data.pronouns.length)],
-      data.verbs[randnum(data.verbs.length)],
-      data.wheres[randnum(data.wheres.length)],
-      data.whens[randnum(data.whens.length)],
-    ].join(' ');
+var User = db.define('User', {
+  username: {type: Sequelize.STRING, unique: true},
+  github: Sequelize.STRING
+}, {
+  tableName: 'users'
+});
 
-    var queryText = `((SELECT id FROM users WHERE username = \'${username}\'), \'${campus}\', \'${roomname}\', \'${message}\', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())`;
+Message.belongsTo(User);
 
-    query += ' ' + queryText + ', ';
+var createUsersTable = User.sync();
+var createMessagesTable = Message.sync();
 
-  }
-  query = query.substr(0, query.length - 2);
-  querySender(query);
-}
+Promise.all([
+  createUsersTable,
+  createMessagesTable
+])
+  .then( () => {
+    /* Instantiate usernames */
+    var userData = _.map(data.usernames, user => ({'username': user[0], 'github': user[1]}));
+    var userNames = _.map(data.usernames, user => ({'username': user[0]}));
+
+    /* Sequelize comes with built in support for promises
+    * making it easy to chain asynchronous operations together */
+    var start = new Date();
+    var userPromise = User.sync()
+      .then( () => {
+        return User.findAll({
+          where: {
+            [Sequelize.Op.or]: userNames
+          }
+        })
+          .then( results => {
+            var dbUsers = {};
+            _.each(userData, user => {
+              dbUsers[user.username] = [undefined, user.github];
+            });
+
+            _.each(results, result => {
+              dbUsers[result.username] = [result.id, result.github];
+            });
+
+            var createUsers = [];
+            _.each(dbUsers, (value, user) => {
+              if (!value[0]) {
+                createUsers.push({username: user, github: value[1]});
+              }
+            });
+
+            return [dbUsers, createUsers];
+          })
+          .then( userTypes => {
+            let [dbUsers, createUsers] = userTypes;
+            return User.bulkCreate(createUsers, {returning: true, ignoreDuplicates: true})
+              .then( results => {
+                _.each(results, result => {
+                  dbUsers[result.username][0] = result.id;
+                });
+                return dbUsers;
+              })
+              .catch( err => { throw err; });
+          })
+          .catch( err => { throw err; });
+      })
+      .then( (list) => {
+        var rawMessages = data.randomize(newMessageCount, list);
+        var createMessages = _.map(rawMessages, message => {
+          let [UserId, campus, roomname, text] = message;
+          return {UserId, campus, roomname, text};
+        });
+        return Message.bulkCreate(createMessages, {returning: true, ignoreDuplicates: true})
+          .then( results => {
+            // console.log(results);
+          })
+          .catch( err => { throw err; });
+
+      })
+      .catch( err => {
+        console.error(err);
+      })
+      .finally( () => {
+        db.close();
+      });
+  });
+

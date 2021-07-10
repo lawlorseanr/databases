@@ -1,12 +1,14 @@
+var _ = require('underscore');
+
 var data = {
   randItemFrom: items => items[Math.floor(Math.random() * items.length)],
-  randomize: count => {
+  randomize: (newEntryCount, userList) => {
+    var userIds = _.map(userList, value => value[0]);
     var rawMessageData = [];
-    for (var i = 0; i < count; i++) {
+    for (var i = 0; i < newEntryCount; i++) {
       var user = data.randItemFrom(data.usernames);
       rawMessageData.push([
-        user[0], // username
-        user[1], // github
+        data.randItemFrom(userIds), // user_id
         'hr-lax', // campus
         'lobby', // roomname
         [
