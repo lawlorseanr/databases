@@ -31,7 +31,9 @@ module.exports = {
           VALUES
             (${id}, \'${message.campus}\', \'${message.roomname}\', \'${message.text}\', NOW(), NOW());`)
           .then( results => {
+            message.github_handle = message.username;
             message.message_id = results.insertId;
+            message.created_at = new Date().toISOString();
             callback(null, message);
           })
           .catch( err => {

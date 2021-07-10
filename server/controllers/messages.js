@@ -17,7 +17,7 @@ module.exports = {
       if (err) {
         res.sendStatus(400);
       } else {
-        res.status(201).json(message);
+        res.status(201).json([message]);
       }
     });
   }
