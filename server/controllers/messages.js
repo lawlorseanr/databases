@@ -5,8 +5,7 @@ module.exports = {
     // a function which handles a get request for all messages
     Messages.getAll( (err, messages) => {
       if (err) {
-        res.status(400);
-        res.end();
+        res.sendStatus(400);
       } else {
         res.status(200).json(messages);
       }
@@ -14,13 +13,11 @@ module.exports = {
   },
   post: function (req, res) {
     // a function which handles posting a message to the database
-    Messages.create(req.body, (err, success) => {
+    Messages.create(req.body, (err, message) => {
       if (err) {
-        res.status(400);
-        res.end();
+        res.sendStatus(400);
       } else {
-        res.status(201);
-        res.end();
+        res.status(201).json(message);
       }
     });
   }

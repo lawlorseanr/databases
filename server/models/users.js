@@ -16,17 +16,16 @@ module.exports = {
     db.query(`SELECT * FROM users WHERE username IN (\'${user.username}\')`)
       .then( results => {
         if (results.length > 0) {
-          throw `User \'${user.username}\' already defined.`;
+          return callback(null, results[0].id);
+        } else {
+          db.query(`INSERT INTO users (username, github) VALUES (\'${user.username}\', \'${user.username}\')`)
+            .then( (result) => {
+              callback(null, result.insertId);
+            })
+            .catch( err => {
+              throw err;
+            });
         }
-      })
-      .then( () => {
-        db.query(`INSERT INTO users (username, github) VALUES (\'${user.username}\', \'${user.github}\')`)
-          .then( () => {
-            callback(null, `User \'${user.username}\' successfully created.`);
-          })
-          .catch( err => {
-            throw err;
-          });
       })
       .catch( err => {
         callback(err);
