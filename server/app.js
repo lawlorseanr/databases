@@ -2,7 +2,7 @@ var express = require('express');
 var cors = require('cors');
 
 var db = require('./db/index.js');
-db.connect();
+// db.connect();
 
 // Middleware
 var morgan = require('morgan');

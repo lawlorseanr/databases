@@ -1,18 +1,26 @@
 var db = require('../db/index.js');
 var Users = require('./users.js');
+var User = db.User;
+var Message = db.Message;
+var _ = require('underscore');
 
 module.exports = {
   getAll: function (callback) {
-    db.query(
-      `SELECT
-        messages.id AS message_id, messages.campus, messages.roomname, messages.text, messages.createdAt, messages.updatedAt, users.username, users.github AS github_handle
-      FROM messages
-      INNER JOIN users
-      ON messages.UserId = users.id
-      ORDER BY messages.id
-      DESC LIMIT 100;`)
+    Message.findAll({limit: 100, include: User})
       .then( results => {
-        return callback(null, results);
+        var processed = _.map(results, result => {
+          return {
+            message_id: result.id,
+            campus: result.campus,
+            roomname: result.roomname,
+            text: result.text,
+            created_at: result.createdAt,
+            updated_at: result.updatedAt,
+            username: result.User.username,
+            github_handle: result.User.github
+          };
+        });
+        callback(null, processed);
       })
       .catch( err => {
         callback(err);
