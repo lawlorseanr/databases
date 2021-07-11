@@ -1,5 +1,8 @@
 var express = require('express');
-var db = require('./db');
+var cors = require('cors');
+
+var db = require('./db/index.js');
+// db.connect();
 
 // Middleware
 var morgan = require('morgan');
@@ -8,16 +11,18 @@ var morgan = require('morgan');
 var router = require('./routes.js');
 
 var app = express();
+app.use(cors());
 module.exports.app = app;
 
 // Set what we are listening on.
-app.set('port', 3000);
+app.set('port', 3001);
 
 // Logging and parsing
 app.use(morgan('dev'));
 app.use(express.json());
 
 // Set up our routes
+
 app.use('/classes', router);
 
 // Serve the client files

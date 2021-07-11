@@ -10,13 +10,13 @@ describe('Persistent Node Chat Server', function() {
 
   beforeEach(function(done) {
     dbConnection = mysql.createConnection({
-      user: 'student',
-      password: 'student',
+      user: 'root',
+      password: '',
       database: 'chat'
     });
     dbConnection.connect();
 
-       var tablename = ""; // TODO: fill this out
+    var tablename = 'messages'; // TODO: fill this out
 
     /* Empty the db table before each test so that multiple tests
      * (or repeated runs of the tests) won't screw each other up: */
@@ -29,51 +29,53 @@ describe('Persistent Node Chat Server', function() {
 
   it('Should insert posted messages to the DB', function(done) {
     // Post the user to the chat server.
-    axios.post('http://127.0.0.1:3000/classes/users', {
+    console.log('pre-post');
+    axios.post('http://127.0.0.1:3001/classes/users', {
       username: 'Valjean'
     })
     // Post a message to the node chat server:
-    .then(
-      function () {
+      .then(
 
-        axios.post('http://127.0.0.1:3000/classes/messages', {
+        function () {
+          console.log('post-post');
+          axios.post('http://127.0.0.1:3001/classes/messages', {
             username: 'Valjean',
             message: 'In mercy\'s name, three days is all I need.',
             roomname: 'Hello'
-        })
-        .then(
-          function () {
-            // Now if we look in the database, we should find the
-            // posted message there.
+          })
+            .then(
+              function () {
+                // Now if we look in the database, we should find the
+                // posted message there.
 
-            // TODO: You might have to change this test to get all the data from
-            // your message table, since this is schema-dependent.
-            var queryString = 'SELECT * FROM messages';
-            var queryArgs = [];
+                // TODO: You might have to change this test to get all the data from
+                // your message table, since this is schema-dependent.
+                var queryString = 'SELECT * FROM messages';
+                var queryArgs = [];
 
-            dbConnection.query(queryString, queryArgs, function(err, results) {
-              if (err) {
-                throw err;
-              } else {
-                // Should have one result:
-                expect(results.length).to.equal(1);
+                dbConnection.query(queryString, queryArgs, function(err, results) {
+                  if (err) {
+                    throw err;
+                  } else {
+                    // Should have one result:
+                    expect(results.length).to.equal(1);
 
-                // TODO: If you don't have a column named text, change this test.
-                expect(results[0].text).to.equal('In mercy\'s name, three days is all I need.');
+                    // TODO: If you don't have a column named text, change this test.
+                    expect(results[0].content).to.equal('In mercy\'s name, three days is all I need.');
 
-                done();
+                    done();
+                  }
+                });
               }
-            });
-          }
-        )
-      }
-    )
+            );
+        }
+      );
   });
 
   it('Should output all messages from the DB', function(done) {
     // Let's insert a message into the db
-       var queryString = "";
-       var queryArgs = [];
+    var queryString = "";
+    var queryArgs = [];
     // TODO - The exact query string and query args to use
     // here depend on the schema you design, so I'll leave
     // them up to you. */
@@ -83,13 +85,13 @@ describe('Persistent Node Chat Server', function() {
 
       // Now query the Node chat server and see if it returns
       // the message we just inserted:
-      axios.get('http://127.0.0.1:3000/classes/messages')
-      .then(function (response) {
+      axios.get('http://127.0.0.1:3001/classes/messages')
+        .then(function (response) {
           var messageLog = response.data;
           expect(messageLog[0].text).to.equal('Men like you can never change!');
           expect(messageLog[0].roomname).to.equal('main');
           done();
-      })
+        });
     });
   });
 });
